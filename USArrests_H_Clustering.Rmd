@@ -1,0 +1,102 @@
+---
+title: "Hierarchical Clustering USArrests"
+author: "Daniel Simpson"
+date: "7/16/2020"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+```{r}
+library(cluster)
+library(datasets)
+```
+
+# Hierarchical Clustering
+
+First we will import the data from the R database. Then we will use hcluster to get the Hierarchical Cluster
+for our data and plot the results:
+```{r}
+USA.data <- USArrests
+Heir.Cluster <- hclust(dist(USA.data, method = "euclidean"), method = "complete")
+plot(Heir.Cluster, cex = 0.55, xlab = "State Names", ylab = NULL, sub = "Hierarchical Cluster")
+```
+
+
+Now we will use the cutree function to identify where the data can be separated into 3 clusters:
+```{r}
+Cut.Heir.Cluster <- cutree(Heir.Cluster, 3)
+sorted.Cluster <- sort(Cut.Heir.Cluster)
+```
+
+***All states appearing in Cluster 1:***
+```{r, echo = FALSE}
+Cluster1.Names <- names(sorted.Cluster[1:16])
+print(Cluster1.Names)
+```
+
+***All states appearing in Cluser 2:***
+```{r, echo = FALSE}
+Cluster2.Names <- names(sorted.Cluster[17:30])
+print(Cluster2.Names)
+```
+
+***All states appearing in Cluster 3:***
+```{r, echo = FALSE}
+Cluster3.Names <- names(sorted.Cluster[31:50])
+print(Cluster3.Names)
+```
+
+We can also see this on the graph by grouping the data by cluster values on the tree:
+```{r}
+plot(Heir.Cluster, cex = 0.55, xlab = "State Names",ylab = NULL, sub = "Hierarchical Cluster")
+rect.hclust(Heir.Cluster, k=3, border=2:6)
+```
+
+We can cluster the data based on Euclidean distance and then within that funtion we can scale
+the data using the scale function:
+```{r}
+Heir.Cluster.Scale <- hclust(dist(scale(USA.data), method = "euclidean"), method = "complete")
+plot(Heir.Cluster.Scale, xlab = "State Names", main = "Scaled Heirarchical Cluster", cex = 0.55, ylab = NULL, sub = "Hierarchical Cluster")
+rect.hclust(Heir.Cluster, k=3, border=2:6)
+```
+First we will use the cuttree function on the tree using the scaled data:
+```{r, echo = FALSE}
+Cut.Heir.Cluster.Scale <- cutree(Heir.Cluster.Scale, k =3)
+```
+
+We can compare the two tables and clearly see this effects how many states in each cluster.
+<br>
+**Regular Heirarchical Cluster Table:**
+<br>
+```{r, echo = FALSE}
+table(Cut.Heir.Cluster)
+```
+<br>
+**Scaled Heirarchical Cluster Table:**
+<br>
+```{r, echo = FALSE}
+table(Cut.Heir.Cluster.Scale)
+sorted.Cluster.Scale <- sort(Cut.Heir.Cluster.Scale)
+```
+
+**All states appearing in Cluster 1 (Scaled):**
+```{r, echo = FALSE}
+Cluster1.Names.Scale <- names(sorted.Cluster.Scale[1:8])
+print(Cluster1.Names.Scale)
+```
+
+***All states appearing in Cluser 2 (Scaled):***
+```{r, echo = FALSE}
+Cluster2.Names.Scale <- names(sorted.Cluster.Scale[9:19])
+print(Cluster2.Names.Scale)
+```
+
+***All states appearing in Cluster 3 (Scaled):***
+```{r, echo = FALSE}
+Cluster3.Names.Scale <- names(sorted.Cluster.Scale[20:50])
+print(Cluster3.Names.Scale)
+```
+
+Clearly in the scaled data there are a much larger number of states falling into the third cluster than in the un-scaled data.
+The assault, murder, and rape are all based on per 100,000 and the urban population is a percentage. Since they have different units it is more important to apply scaling for this data.
